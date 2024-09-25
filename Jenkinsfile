@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     stages {
-        // Step 4: Build stage (if using Docker to build a web app)
         stage('Build') {
             steps {
                 echo 'Building Docker image...'
@@ -10,17 +9,14 @@ pipeline {
             }
         }
 
-        // Step 5: Test stage
         stage('Test') {
             steps {
                 echo 'Running automated tests...'
-                // Install necessary packages and run tests
                 sh 'npm install'
                 sh 'npm test'
             }
         }
 
-        // Step 6: Code Quality Analysis stage using SonarQube
         stage('Code Quality Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
@@ -30,7 +26,6 @@ pipeline {
             }
         }
 
-        // Step 7: Deploy stage (if using Docker to deploy the web app)
         stage('Deploy') {
             steps {
                 echo 'Deploying Docker container...'
@@ -38,11 +33,10 @@ pipeline {
             }
         }
 
-        // Step 9: Monitoring and Alerting
         stage('Monitoring and Alerting') {
             steps {
                 echo 'Monitoring the application...'
-                // Add your monitoring tool (Datadog, New Relic, etc.) configuration here
+                // Add your monitoring tool configuration here
             }
         }
     }
@@ -50,7 +44,15 @@ pipeline {
     post {
         always {
             echo 'Cleaning up Docker containers...'
-            sh 'docker stop $(docker ps -q)'
+            sh 'docker stop $(docker ps -q -f "ancestor=your-app-name") || true'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+            // Add notification code here
+        }
+        failure {
+            echo 'Pipeline failed!'
+            // Add notification code here
         }
     }
 }
